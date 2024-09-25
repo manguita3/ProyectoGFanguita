@@ -1,0 +1,86 @@
+---
+title: "Plantilla Proyecto"
+author: "Alumno"
+format: html
+editor: visual
+---
+
+```{r dependencias}
+# install.packages("reticulate")
+library(reticulate)
+# conda_install("yfinance")
+# py_install("yfinance")
+```
+
+
+```{python instala}
+#| include: false
+# %pip install yfinance
+```
+
+## Descripción Activo y Contexto (Hito 1)
+
+### Definición
+
+Definir y describir activo a estudiar, acompañar con datos (tributa a indicador de Contexto) y con referencias científicas.
+
+```{python ingesta}
+import yfinance as yf
+
+stocks = ['BAC', 'AAPL', 'MSFT']
+data = yf.download(stocks, start="2015-12-01", end="2021-12-01")
+```
+
+```{r}
+data <- py$data
+data$date <- rownames(data)
+data <- data[,c(19,1:18)]
+names(data)[2:4] <- c("AAPL","BAC","MSFT")
+library(tidyr) # equivalente a import
+data_long <- pivot_longer(data[,1:4], cols = AAPL:MSFT, names_to = "Activo", values_to = "Valor")
+```
+
+
+```{r}
+# install.packages("devtools")
+# install.packages("ggplot")
+# devtools::install_github("business-science/tidyquant")
+library(tidyquant)
+library(ggplot2)
+n_mavg <- 50 # Number of periods (days) for moving average
+data_long %>%
+    ggplot(aes(x = date, y = Valor, color = Activo)) +
+    geom_line(size = 1) +
+    geom_ma(n = 15, color = "darkblue", size = 1) + 
+    # geom_ma(n = n_mavg, color = "red", size = 1) +
+    labs(title = "Dark Theme",
+         x = "", y = "Closing Price") +
+    # coord_x_date(xlim = c(start, end)) +
+    facet_wrap(~ Activo, scales = "free_y") +
+    theme_tq_dark() +
+    scale_color_tq(theme = "dark") +
+    scale_y_continuous(labels = scales::dollar)
+```
+
+
+### Motivación
+
+Establecer la relevancia o potencial interés específico del activo. Dar contexto
+
+### Contexto
+
+Ingesta datos del activo y provee un análisis de estadística descriptiva simple junto con el análisis de una variable económica de contexto. Ejemplo: Si el activo es una minera, la variable puede ser el precio del metal.
+
+### Análisis de Largo Plazo
+
+#### Caracterización deuda
+
+Aplicación cap. 15
+
+#### Caracterización de emisiones históricas
+
+Aplicación cap. 20
+
+#### Relación con activos derivados
+
+Investigar relación con instrumentos derivados (difícil)
